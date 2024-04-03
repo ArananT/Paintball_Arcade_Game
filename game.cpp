@@ -202,7 +202,7 @@ namespace game {
         background_objects_.push_back(background2);
         background2->toggleCollide();
         GameObject* background3 = new GameObject(glm::vec3(-20.0f, 0.0f, 0.0f), sprite_, &sprite_shader_, tex_[3]);
-        background3->SetScale(glm::vec2(20.0f,20.0f));
+        background3->SetScale(glm::vec2(20.0f, 20.0f));
         game_objects_.push_back(background3);
         background_objects_.push_back(background3);
         background3->toggleCollide();
@@ -221,21 +221,6 @@ namespace game {
         game_objects_.push_back(background6);
         background_objects_.push_back(background6);
         background6->toggleCollide();
-        GameObject* background7 = new GameObject(glm::vec3(20.0f, -20.0f, 0.0f), sprite_, &sprite_shader_, tex_[3]);
-        background7->SetScale(glm::vec2(20.0, 20.0));
-        game_objects_.push_back(background7);
-        background_objects_.push_back(background7);
-        background7->toggleCollide();
-        GameObject* background8 = new GameObject(glm::vec3(-20.0f, -20.0f, 0.0f), sprite_, &sprite_shader_, tex_[3]);
-        background8->SetScale(glm::vec2(20.0, 20.0));
-        game_objects_.push_back(background8);
-        background_objects_.push_back(background8);
-        background8->toggleCollide();
-        GameObject* background9 = new GameObject(glm::vec3(-20.0f, 20.0f, 0.0f), sprite_, &sprite_shader_, tex_[3]);
-        background9->SetScale(glm::vec2(20.0, 20.0));
-        game_objects_.push_back(background9);
-        background_objects_.push_back(background9);
-        background9->toggleCollide();
 
 
         // Setup particle system
@@ -341,6 +326,9 @@ namespace game {
     {
         // Get player game object
         PlayerGameObject* player = dynamic_cast<PlayerGameObject*>(game_objects_[0]);
+        // Get background game object
+        GameObject* back = dynamic_cast<GameObject*>(background_objects_[0]);
+        back->SetPosition(player->GetPosition()*0.8f);
 
         // Get current position and angle
         glm::vec3 curpos = player->GetPosition();
@@ -411,7 +399,7 @@ namespace game {
             
 
         }
-           
+
     }
 
     
@@ -636,7 +624,7 @@ namespace game {
         }
 
         // Set view to zoom out
-        float camera_zoom = 0.05f; // Adjust zoom level as needed
+        float camera_zoom = 0.15f; // Adjust zoom level as needed
         glm::mat4 camera_zoom_matrix = glm::scale(glm::mat4(1.0f), glm::vec3(camera_zoom, camera_zoom, 1.0f));
 
         // Get the player's current position
@@ -668,8 +656,7 @@ namespace game {
             std::mt19937 eng(rd()); // Seed the generator
             std::uniform_real_distribution<> distr(-30.0 + playerpos.x, 30.0 + playerpos.x); // Define the range
             
-            game_objects_.push_back(new EnemyGameObject(glm::vec3(distr(eng), distr(eng), 0.0f), sprite_, &sprite_shader_, tex_[1]));
-            
+            game_objects_.insert(game_objects_.end() - 10, new EnemyGameObject(glm::vec3(distr(eng), distr(eng), 0.0f), sprite_, &sprite_shader_, tex_[1]));
 
             enemycount--;
         }

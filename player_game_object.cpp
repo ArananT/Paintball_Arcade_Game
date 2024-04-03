@@ -34,21 +34,23 @@ namespace game {
 		return false;
 	}
 	void PlayerGameObject::Accelerate(glm::vec3 acceleration) {
-		glm::vec3 new_velocity = velocity + acceleration;
 
-		// Calculate the magnitude of the new velocity
-		float velocity_magnitude = sqrt(new_velocity.x * new_velocity.x +
-			new_velocity.y * new_velocity.y +
-			new_velocity.z * new_velocity.z);
-
-		// Check if the new velocity exceeds the maximum speed of 2 units this should limit it to 2 units per second
-		if (velocity_magnitude > 0.2f) {
-			
-			new_velocity = (new_velocity / velocity_magnitude) * 0.2f;
+		// applies deceleration if no acceleration is applied
+		if (glm::length(acceleration) == 0.0f) {
+			glm::vec3 deceleration = -0.1f * velocity;
+			velocity += deceleration;
 		}
+		else {
+			velocity += acceleration;
 
-		// Update the player's velocity
-		velocity = new_velocity;
+			// Calculate the magnitude of the new velocity
+			float velocity_magnitude = glm::length(velocity);
+
+			// Check if the new velocity exceeds the maximum speed of 2 units this should limit it to 2 units per second
+			if (velocity_magnitude > 0.2f) {
+				velocity = (velocity / velocity_magnitude) * 0.2f;
+			}
+		}
 	}
 
 
