@@ -34,6 +34,7 @@ namespace game {
     std::vector<Bullet*> bullet_objects_;
     int bulletcount = 0;
     GameObject* blade;
+    int enemycount = 10;
 
     
 
@@ -425,6 +426,8 @@ namespace game {
         GameObject* player = game_objects_[0];
         GameObject* blade = game_objects_[1];
 
+        EnemyCreator(player->GetPosition());
+
        
         for (Bullet* obj : bullet_objects_)
         {
@@ -488,6 +491,7 @@ namespace game {
             for (int i = 0; i < game_objects_.size(); i++) {
                 GameObject* current_game_object = game_objects_[i];
                 if (current_game_object->boomTime() == true) {
+                    enemycount++;
                     current_game_object->SetTemporary(true);
                 }
                 if (current_game_object->invincibleDone()) {
@@ -632,7 +636,7 @@ namespace game {
         }
 
         // Set view to zoom out
-        float camera_zoom = 0.15f; // Adjust zoom level as needed
+        float camera_zoom = 0.05f; // Adjust zoom level as needed
         glm::mat4 camera_zoom_matrix = glm::scale(glm::mat4(1.0f), glm::vec3(camera_zoom, camera_zoom, 1.0f));
 
         // Get the player's current position
@@ -656,6 +660,19 @@ namespace game {
         }
         
         
+    }
+    void Game::EnemyCreator(glm::vec3 playerpos) {
+        while (enemycount > 0) {
+            std::cout << "create enemy" << enemycount << std::endl;
+            std::random_device rd;  // Obtain a random number from hardware
+            std::mt19937 eng(rd()); // Seed the generator
+            std::uniform_real_distribution<> distr(-30.0 + playerpos.x, 30.0 + playerpos.x); // Define the range
+            
+            game_objects_.push_back(new EnemyGameObject(glm::vec3(distr(eng), distr(eng), 0.0f), sprite_, &sprite_shader_, tex_[1]));
+            
+
+            enemycount--;
+        }
     }
 
    

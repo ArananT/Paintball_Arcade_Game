@@ -75,7 +75,9 @@ namespace game {
 
         // Handle user input
         void HandleControls(double delta_time);
-
+        
+        // Enemy Creation
+        void EnemyCreator(glm::vec3 playerpos);
 
         // Update all the game objects
         void Update(double delta_time);
