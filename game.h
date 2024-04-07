@@ -19,7 +19,9 @@ namespace game {
         Timer collisionTimer;
         bool collisionTimerStarted;
         bool gamePaused;
-        int collections = 0;
+        int shieldCollections = 0;
+        int heartCollections = 0;
+        int paintCollections = 0;
        
 
     public:
@@ -78,6 +80,9 @@ namespace game {
         
         // Enemy Creation
         void EnemyCreator(glm::vec3 playerpos);
+
+        // Item Creation
+        void ItemCreator(glm::vec3 playerpos);
 
         // Update all the game objects
         void Update(double delta_time);

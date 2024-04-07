@@ -63,6 +63,8 @@ namespace game {
                     explosionTimer->Start(5.0); // Use the arrow operator (->) to call methods on the pointer
                 }
             }
+
+            // Abilities
             inline void invincibleStart() {
                 if (invincibilityTimer != nullptr) { // Always check if the pointer is not null
                     invincibilityTimer->Start(10.0); // Use the arrow operator (->) to call methods on the pointer
@@ -75,6 +77,7 @@ namespace game {
                 }
                 return false; // Assume not started if timer is null
             }
+
             //explosion time (timer finished)
             inline bool boomTime() {
                 if (explosionTimer != nullptr) { // Always check if the pointer is not null
@@ -109,6 +112,7 @@ namespace game {
             inline
 
             void SetTex(GLuint texture) { texture_ = texture; }
+            GLuint GetTex() const { return texture_; }
 
             //GetCollider()
             CircleCollider& GetCollider() { return collider; }

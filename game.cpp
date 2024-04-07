@@ -35,6 +35,7 @@ namespace game {
     int bulletcount = 0;
     GameObject* blade;
     int enemycount = 10;
+    int itemcount = 10;
 
     
 
@@ -271,7 +272,7 @@ namespace game {
         // Load all textures that we will need
         // Declare all the textures here
         const char* texture[] = { "/textures/maincharacter_green.png", "/textures/enemyship_orange.png", "/textures/enemyship_blue.png", "/textures/stars2.png","/textures/enemyship_black.png",
-            "/textures/enemyship_prism.png","/textures/shield.png", "/textures/explosion0.png","/textures/bullet.png","/textures/blade.png","/textures/orb.png"};
+            "/textures/enemyship_prism.png","/textures/shield.png", "/textures/explosion0.png","/textures/bullet.png","/textures/blade.png","/textures/orb.png","/textures/heart.png", "/textures/paintBucket.png" };
         // Get number of declared textures
         int num_textures = sizeof(texture) / sizeof(char*);
         // Allocate a buffer for all texture references
@@ -415,6 +416,7 @@ namespace game {
         GameObject* blade = game_objects_[1];
 
         EnemyCreator(player->GetPosition());
+        ItemCreator(player->GetPosition());
 
        
         for (Bullet* obj : bullet_objects_)
@@ -553,14 +555,32 @@ namespace game {
     void Game::HandleCollection(GameObject* Object1, GameObject* Object2) {
         Object2->toggleCollide();
         Object2->SetTemporary(true);
-        collections++;
+        itemcount++;
 
-        if (collections == 5) {
-            collections = 0;
+        if (Object2->GetTex() == tex_[6]) {
+            shieldCollections++;
+        }
+
+        if (Object2->GetTex() == tex_[11]) {
+            heartCollections++;
+        }
+
+        if (Object2->GetTex() == tex_[12]) {
+            paintCollections++;
+        }
+
+        if (shieldCollections == 5) {
+            shieldCollections = 0;
 
             Object1->invincibleStart();
             Object1->toggleCollide();
             Object1->SetTex(tex_[5]);
+        }
+
+        if (heartCollections == 5) {
+            heartCollections = 0;
+
+            Object1->;
         }
 
 
@@ -659,6 +679,29 @@ namespace game {
             game_objects_.insert(game_objects_.end() - 10, new EnemyGameObject(glm::vec3(distr(eng), distr(eng), 0.0f), sprite_, &sprite_shader_, tex_[1]));
 
             enemycount--;
+        }
+    }
+
+    void Game::ItemCreator(glm::vec3 playerpos) {
+        while (itemcount > 0) {
+            std::cout << "create item" << itemcount << std::endl;
+            std::random_device rd; // Obtain a random number from hardware
+            std::mt19937 eng(rd()); // Seed the generator
+            std::uniform_real_distribution<> distr(-30.0 + playerpos.x, 30.0 + playerpos.x);
+
+            int type = distr(eng);
+
+            if (type >= -30.0 && type < -10.0) {
+                game_objects_.insert(game_objects_.end() - 10, new CollectableGameObject(glm::vec3(distr(eng), distr(eng), 0.0f), sprite_, &sprite_shader_, tex_[6]));
+            }
+            else if (type >= -10.0 && type < 10.0) {
+                game_objects_.insert(game_objects_.end() - 10, new CollectableGameObject(glm::vec3(distr(eng), distr(eng), 0.0f), sprite_, &sprite_shader_, tex_[11]));
+            }
+            else if (type >= 10.0 && type <= 30.0) {
+                game_objects_.insert(game_objects_.end() - 10, new CollectableGameObject(glm::vec3(distr(eng), distr(eng), 0.0f), sprite_, &sprite_shader_, tex_[12]));
+            }   
+
+            itemcount--;
         }
     }
 
