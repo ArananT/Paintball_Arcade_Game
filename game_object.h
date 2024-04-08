@@ -95,6 +95,10 @@ namespace game {
                 collide = false;
             }
 
+            inline void onCollide() {
+                collide = true;
+            }
+
             glm::mat4 BladeTransform(const glm::vec3& PlayerPosition, const float& playerAngle);
 
             bool RayCircleIntersect(const glm::vec3& rayOrigin, const glm::vec3& rayDirection,

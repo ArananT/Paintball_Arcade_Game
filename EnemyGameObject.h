@@ -49,11 +49,56 @@ namespace game {
         float patrolAngle; // Current angle in the patrol circle
         float patrolRadius; // Radius of the patrol circle
         glm::vec3 patrolCenter; // Center of the patrol circle
-
-    
         State currentState; // Current state of the enemy
     };
+    class Shooter : public EnemyGameObject {
+    public:
 
+        enum class State {
+            Patrolling,
+            Intercepting
+        };
+
+        void setState(State newstate);
+
+        Shooter::Shooter(const glm::vec3& position, Geometry* geom, Shader* shader, GLuint texture);
+        virtual Shooter::~Shooter();
+
+        virtual void Update(double delta_time);
+
+        void interceptStart();
+        bool interceptDone();
+
+        void shootStart();
+        bool shootDone();
+
+        void SetTargetPosition(const glm::vec3& targetPos);
+
+        bool canShoot();
+
+    private:
+        Timer* interceptTimer; // Timer to manage modifications to the velocity vector
+        glm::vec3 velocity; // Current velocity of the enemy
+        glm::vec3 targetPosition; // Current target position
+
+        // Attributes for patrolling behavior
+        float patrolAngle; // Current angle in the patrol circle
+        float patrolRadius; // Radius of the patrol circle
+        glm::vec3 patrolCenter; // Center of the patrol circle
+        State currentState; // Current state of the enemy
+        bool canshoot;
+        Timer* shootTimer;
+    };
+
+    class StaticEnemy : public EnemyGameObject {
+    public:
+        virtual void update(double delta_time);
+    };
+
+    class InterceptingEnemy : public EnemyGameObject {
+    public:
+        virtual void update(double delta_time);
+    };
 } // namespace game
 
 #endif // ENEMY_GAME_OBJECT_H

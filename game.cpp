@@ -32,7 +32,9 @@ namespace game {
     const glm::vec3 viewport_background_color_g(0.0, 0.0, 1.0);
     std::vector<GameObject*> background_objects_;
     std::vector<Bullet*> bullet_objects_;
+    std::vector<Bullet*> enemy_bullets;
     int bulletcount = 0;
+    int enemybulletcount = 0;
     GameObject* blade;
     int enemycount = 10;
     int itemcount = 10;
@@ -149,8 +151,10 @@ namespace game {
         game_objects_.push_back(new EnemyGameObject(glm::vec3(distr(eng), distr(eng), 0.0f), sprite_, &sprite_shader_, tex_[1]));
         game_objects_[4]->SetRotation(pi_over_two);
 
-        game_objects_.push_back(new EnemyGameObject(glm::vec3(distr(eng), distr(eng), 0.0f), sprite_, &sprite_shader_, tex_[1]));
+        game_objects_.push_back(new Shooter(glm::vec3(5.0f, 0.0f , 0.0f), sprite_, &sprite_shader_, tex_[13]));
         game_objects_[5]->SetRotation(pi_over_two);
+        
+
 
         //add collectable game objects 
         game_objects_.push_back(new CollectableGameObject(glm::vec3(-3.0f, 3.0f, 0.0f), sprite_, &sprite_shader_, tex_[6]));
@@ -272,7 +276,7 @@ namespace game {
         // Load all textures that we will need
         // Declare all the textures here
         const char* texture[] = { "/textures/maincharacter_green.png", "/textures/enemyship_orange.png", "/textures/enemyship_blue.png", "/textures/stars2.png","/textures/enemyship_black.png",
-            "/textures/enemyship_prism.png","/textures/shield.png", "/textures/explosion0.png","/textures/bullet.png","/textures/blade.png","/textures/orb.png","/textures/heart.png", "/textures/paintBucket.png" };
+            "/textures/enemyship_prism.png","/textures/shield.png", "/textures/explosion0.png","/textures/bullet.png","/textures/blade.png","/textures/orb.png","/textures/heart.png", "/textures/paintBucket.png","/textures/shooter.png"};
         // Get number of declared textures
         int num_textures = sizeof(texture) / sizeof(char*);
         // Allocate a buffer for all texture references
@@ -292,7 +296,7 @@ namespace game {
         // Loop while the user did not close the window
         double last_time = glfwGetTime();
         while (!glfwWindowShouldClose(window_)) {
-            if (!playerAlive && game_objects_[0]->boomTime()) {
+            if (game_objects_[0]->boomTime()) {
                 std::cout << "Game Over" << std::endl;
                 glfwSetWindowShouldClose(window_, true);
                 break;
@@ -338,7 +342,7 @@ namespace game {
         glm::vec3 dir = player->GetBearing();
         // Adjust motion increment and angle increment 
         // if translation or rotation is too slow
-        float speed = delta_time * 900.0;
+        float speed = delta_time * 1000.0;
         float motion_increment = 0.001 * speed;
         float angle_increment = (glm::pi<float>() / 1800.0f) * speed;
 
@@ -347,12 +351,13 @@ namespace game {
 
         // Check for player input and make changes accordingly
         if (glfwGetKey(window_, GLFW_KEY_W) == GLFW_PRESS) {
-            a = glm::vec3(0.0003f, 0.0003f, 0.0f) * dir;
+            a = glm::vec3(0.0005, 0.0005, 0.0f) * dir;
 
             player->Accelerate(a);
+
         }
         if (glfwGetKey(window_, GLFW_KEY_S) == GLFW_PRESS) {
-            a = glm::vec3(-0.0003f, -0.0003f, 0.0f) * dir;
+            a = glm::vec3(-0.0005f, -0.0005f, 0.0f) * dir;
             player->Accelerate(a);
         }
         glm::vec3 up(0.0f, 0.0f, 1.0f);
@@ -362,13 +367,13 @@ namespace game {
         if (glfwGetKey(window_, GLFW_KEY_E) == GLFW_PRESS) {
             // Correctly move to the right by applying acceleration perpendicular to the current direction
 
-            a = right * 0.0003f;
+            a = right * 0.0005f;
             player->Accelerate(a);
         }
         if (glfwGetKey(window_, GLFW_KEY_Q) == GLFW_PRESS) {
             // Move to the left by applying acceleration in the opposite direction of 'right'
 
-            a = right * -0.0003f; // Adjust the magnitude as needed for the left movement
+            a = right * -0.0005f; // Adjust the magnitude as needed for the left movement
             player->Accelerate(a);
         }
 
@@ -427,6 +432,14 @@ namespace game {
                 bulletcount--;
             }
         }
+        for (Bullet* obj : enemy_bullets)
+        {
+            obj->Update(delta_time);
+            if (obj->lifeover()) {
+                obj->SetTemporary(true);
+                enemybulletcount--;
+            }
+        }
 
         for (Bullet* bullet : bullet_objects_) {
             glm::vec3 rayOrigin = bullet->GetPosition();
@@ -440,7 +453,6 @@ namespace game {
                 if (target != nullptr) {
                     float collisionTime = bullet->FindCollisionTime(rayOrigin, rayDirection, bullet->GetVelocity(), target->GetPosition(), 0.45f, delta_time);
                     if (collisionTime >= 0.0) {
-                        std::cout << "COLLISION OCCURRED" << std::endl;
                         target->SetTex(tex_[7]);
                         target->toggleCollide();
                         target->boomStart();
@@ -451,11 +463,65 @@ namespace game {
                 }
             }
         }
+        for (Bullet* bullet : enemy_bullets) {
+            glm::vec3 rayOrigin = bullet->GetPosition();
+            glm::vec3 rayDirection = bullet->GetBearing(); // Assuming velocity gives the ray direction
+
+            PlayerGameObject* obj = dynamic_cast<PlayerGameObject*>(game_objects_[0]);
+                if (obj != nullptr) {
+                    float collisionTime = bullet->FindCollisionTime(rayOrigin, rayDirection, bullet->GetVelocity(), obj->GetPosition(), 0.45f, delta_time);
+                    if (collisionTime >= 0.0) {
+                        std::cout << "PLAYERSHOT" << std::endl;
+                        obj->SetTex(tex_[7]);
+                        obj->toggleCollide();
+                        obj->boomStart();
+                        bullet->SetTemporary(true);
+                        enemybulletcount--;
+                        break; // Optional: Stop checking collisions for this bullet
+                    }
+                }
+            }
+       
+
 
 
         for (GameObject* obj : game_objects_) {
             
             EnemyGameObject* enemy = dynamic_cast<EnemyGameObject*>(obj);
+
+            Shooter* shooter = dynamic_cast<Shooter*>(obj);
+
+
+            if (shooter != nullptr) {
+
+
+                glm::vec3 playerPosition = player->GetPosition();
+                glm::vec3 shooterPosition = shooter->GetPosition();
+                glm::vec3 distanceVector;
+
+                distanceVector.x = std::abs(playerPosition.x - shooterPosition.x);
+                distanceVector.y = std::abs(playerPosition.y - shooterPosition.y);
+
+
+                if (distanceVector.x <= 5.0f && distanceVector.y <= 5.0f) {
+                    shooter->SetTargetPosition(player->GetPosition());
+                    shooter->setState(Shooter::State::Intercepting);
+                    
+                    if (shooter->shootDone()) {
+                        enemy_bullets.push_back(new Bullet(shooter->GetPosition(), sprite_, &sprite_shader_, tex_[8]));
+                        enemy_bullets[enemybulletcount]->SetScale(glm::vec2(0.5, 0.5));
+                        enemy_bullets[enemybulletcount]->SetRotation(shooter->GetRotation());
+                        enemy_bullets[enemybulletcount]->SetVelocity(shooter->GetBearing()/2.0f);
+                        enemybulletcount++;
+
+                    }
+                    
+                }
+                else {
+                    shooter->setState(Shooter::State::Patrolling);
+
+                }
+            }       
             if (enemy != nullptr) {
 
                 // Calculate the distance between the player and this enemy
@@ -468,7 +534,7 @@ namespace game {
 
 
                 // If the enemy is within 20.0f units of the player, switch its state to Intercepting
-                if (distanceVector.x <= 2.5f && distanceVector.y <= 2.5f) {
+                if (distanceVector.x <= 5.0f && distanceVector.y <= 5.0f) {
 
                     enemy->SetTargetPosition(player->GetPosition());
                     enemy->setState(EnemyGameObject::State::Intercepting);
@@ -485,7 +551,7 @@ namespace game {
                     current_game_object->SetTemporary(true);
                 }
                 if (current_game_object->invincibleDone()) {
-                    current_game_object->toggleCollide();
+                    current_game_object->onCollide();
 
                     current_game_object->SetTex(tex_[0]);
                 }
@@ -544,6 +610,15 @@ namespace game {
                 return isTemp;
                 });
             bullet_objects_.erase(removeIt2, bullet_objects_.end());
+
+            auto removeIt3 = std::remove_if(enemy_bullets.begin(), enemy_bullets.end(), [](Bullet* obj) {
+                bool isTemp = obj->IsTemporary();
+                if (isTemp) {
+                    delete obj;  // Deallocate memory if the bullet is temporary
+                }
+                return isTemp;
+                });
+            enemy_bullets.erase(removeIt3, enemy_bullets.end());
             
 
           
@@ -580,7 +655,7 @@ namespace game {
         if (heartCollections == 5) {
             heartCollections = 0;
 
-            Object1->;
+          
         }
 
 
@@ -660,6 +735,10 @@ namespace game {
         
         for (int i = 0; i < bullet_objects_.size(); i++) {
             bullet_objects_[i]->Render(view_matrix, current_time_);
+        }
+
+        for (int i = 0; i < enemy_bullets.size(); i++) {
+            enemy_bullets[i]->Render(view_matrix, current_time_);
         }
 
         game_objects_[1]->Render(view_matrix, current_time_, game_objects_[1]->BladeTransform(game_objects_[0]->GetPosition(), game_objects_[0]->GetAngle()));

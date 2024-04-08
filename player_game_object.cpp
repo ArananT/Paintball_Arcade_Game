@@ -33,6 +33,9 @@ namespace game {
 		}
 		return false;
 	}
+
+	
+
 	void PlayerGameObject::Accelerate(glm::vec3 acceleration) {
 		glm::vec3 new_velocity = velocity + acceleration;
 
@@ -42,15 +45,15 @@ namespace game {
 			new_velocity.z * new_velocity.z);
 
 		// Check if the new velocity exceeds the maximum speed of 2 units this should limit it to 2 units per second
-		if (velocity_magnitude > 0.2f) {
+		if (velocity_magnitude > 2.0f) {
 
-			new_velocity = (new_velocity / velocity_magnitude) * 0.2f;
+			new_velocity = (new_velocity / velocity_magnitude) * 2.0f;
 		}
 		// Update the player's velocity
 		velocity = new_velocity;
 	}
 
-	glm::vec3 PlayerGameObject::getVelocity() { return velocity; }
+	float PlayerGameObject::getVelocity() { return velocity.y; }
 
 
 	// Update function for moving the player object around

@@ -21,7 +21,7 @@ namespace game {
             void Accelerate(glm::vec3 acceleration);
 
 
-            glm::vec3 getVelocity();
+            float getVelocity();
 
 
 
