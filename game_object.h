@@ -139,6 +139,8 @@ namespace game {
                 return creation_time_;
             }
 
+            bool inTile(GameObject* tile);
+
         protected:
             // Object's Transform Variables
             glm::vec3 position_;

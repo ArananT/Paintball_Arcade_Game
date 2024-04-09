@@ -19,6 +19,8 @@
 #include "particle_system.h"
 #include "glm/ext.hpp"
 
+#define HIT true
+#define HEAL false
 
 namespace game {
 
@@ -226,6 +228,21 @@ namespace game {
         game_objects_.push_back(background6);
         background_objects_.push_back(background6);
         background6->toggleCollide();
+        GameObject* background7 = new GameObject(glm::vec3(-20.0f, 20.0f, 0.0f), sprite_, &sprite_shader_, tex_[3]);
+        background7->SetScale(glm::vec2(20.0f, 20.0f));
+        game_objects_.push_back(background7);
+        background_objects_.push_back(background7);
+        background7->toggleCollide();
+        GameObject* background8 = new GameObject(glm::vec3(-20.0f, -20.0f, 0.0f), sprite_, &sprite_shader_, tex_[3]);
+        background8->SetScale(glm::vec2(20.0f, 20.0f));
+        game_objects_.push_back(background8);
+        background_objects_.push_back(background8);
+        background8->toggleCollide();
+        GameObject* background9 = new GameObject(glm::vec3(20.0f, -20.0f, 0.0f), sprite_, &sprite_shader_, tex_[3]);
+        background9->SetScale(glm::vec2(20.0f, 20.0f));
+        game_objects_.push_back(background9);
+        background_objects_.push_back(background9);
+        background9->toggleCollide();
 
 
         // Setup particle system
@@ -275,8 +292,9 @@ namespace game {
     {
         // Load all textures that we will need
         // Declare all the textures here
-        const char* texture[] = { "/textures/maincharacter_green.png", "/textures/enemyship_orange.png", "/textures/enemyship_blue.png", "/textures/stars2.png","/textures/enemyship_black.png",
-            "/textures/enemyship_prism.png","/textures/shield.png", "/textures/explosion0.png","/textures/bullet.png","/textures/blade.png","/textures/orb.png","/textures/heart.png", "/textures/paintBucket.png","/textures/shooter.png"};
+        const char* texture[] = { "/textures/player.png", "/textures/enemyship_orange.png", "/textures/enemyship_blue.png", "/textures/stars2.png","/textures/enemyship_black.png",
+            "/textures/enemyship_prism.png","/textures/ShieldItem.png", "/textures/explosion0.png","/textures/bullet.png","/textures/blade.png","/textures/orb.png","/textures/heart.png", 
+            "/textures/paintBucket.png","/textures/shooter.png"};
         // Get number of declared textures
         int num_textures = sizeof(texture) / sizeof(char*);
         // Allocate a buffer for all texture references
@@ -331,9 +349,8 @@ namespace game {
     {
         // Get player game object
         PlayerGameObject* player = dynamic_cast<PlayerGameObject*>(game_objects_[0]);
-        // Get background game object
-        GameObject* back = dynamic_cast<GameObject*>(background_objects_[0]);
-        back->SetPosition(player->GetPosition()*0.8f);
+        // Get background game objects
+        
 
         // Get current position and angle
         glm::vec3 curpos = player->GetPosition();
@@ -576,9 +593,18 @@ namespace game {
 
 
                             else if (current_game_object->canCollide() == true && other_game_object->canCollide() == true) {
-                                HandleCollision(current_game_object, other_game_object);
+                                HandleCollision(current_game_object, other_game_object, HIT);
                             }
                         }
+                    }
+                }
+            }
+
+            if (!player->inTile(background_objects_[0])) {
+                for (int i = 0; i < background_objects_.size(); ++i) {
+                    if (player->inTile(background_objects_[i])) {
+                        HandleBackground(game_objects_[0], background_objects_[i]);
+                        break;
                     }
                 }
             }
@@ -654,8 +680,12 @@ namespace game {
 
         if (heartCollections == 5) {
             heartCollections = 0;
+            HandleCollision(Object1, Object2, HEAL);
+        }
 
-          
+        if (paintCollections == 5) {
+            paintCollections = 0;
+
         }
 
 
@@ -663,12 +693,12 @@ namespace game {
 
 
 
-    void Game::HandleCollision(GameObject* object1, GameObject* object2) {
+    void Game::HandleCollision(GameObject* object1, GameObject* object2, bool hitOrHeal) {
         // Define a local variable to count player collisions
         static int playerCollisions = 0;
 
 
-        if (object1 == game_objects_[0] || object2 == game_objects_[0]) {
+        if ((object1 == game_objects_[0] || object2 == game_objects_[0]) && hitOrHeal == HIT) {
             // Check if either object1 or object2 is the player object
             playerCollisions++; // Increment the player collision counter
 
@@ -685,6 +715,10 @@ namespace game {
             }
         }
 
+        if (hitOrHeal == HEAL) {
+            playerCollisions--;
+        }
+
         object2->SetTex(tex_[7]);
         object2->toggleCollide();
         object2->boomStart();
@@ -694,6 +728,18 @@ namespace game {
 
 
 
+    }
+
+
+
+    void Game::HandleBackground(GameObject* player, GameObject* tile) {
+
+        GameObject* middleTile = background_objects_[0];
+        glm::vec3 offset = middleTile->GetPosition() - tile->GetPosition();
+        
+        for (int i = 0; i < background_objects_.size(); i++) {
+            background_objects_[i]->SetPosition(background_objects_[i]->GetPosition() - offset);
+        }
     }
 
 

@@ -88,8 +88,13 @@ namespace game {
         void Update(double delta_time);
 
         // Does the appropriate actions when a collision is detected
-        void HandleCollision(GameObject* object1, GameObject* Object2);
+        void HandleCollision(GameObject* object1, GameObject* Object2, bool hitOrHeal);
+
+        // Does the appropriate actions when an item is collected
         void HandleCollection(GameObject* object1, GameObject* Object2);
+
+        // Takes care of background scrolling
+        void HandleBackground(GameObject* player, GameObject* tile);
 
         // Render the game world
         void Render(void);

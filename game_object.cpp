@@ -198,5 +198,18 @@ float GameObject::FindCollisionTime(const glm::vec3& rayOrigin, const glm::vec3&
     }
 }
 
+bool GameObject::inTile(GameObject* tile) {
+    float minX = tile->GetPosition().x - 20.0f / 2.0f;
+    float minY = tile->GetPosition().y - 20.0f / 2.0f;
+    float maxX = tile->GetPosition().x + 20.0f / 2.0f;
+    float maxY = tile->GetPosition().y + 20.0f / 2.0f;
+
+    if (position_.x >= minX && position_.x <= maxX && position_.y >= minY && position_.y <= maxY) {
+        return true;
+    }
+
+    return false;
+}
+
 
 } // namespace game
