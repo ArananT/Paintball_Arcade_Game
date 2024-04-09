@@ -22,6 +22,7 @@
 #define HIT true
 #define HEAL false
 
+
 namespace game {
 
     // Some configuration constants
@@ -292,8 +293,8 @@ namespace game {
     {
         // Load all textures that we will need
         // Declare all the textures here
-        const char* texture[] = { "/textures/player.png", "/textures/enemyship_orange.png", "/textures/enemyship_blue.png", "/textures/stars2.png","/textures/enemyship_black.png",
-            "/textures/enemyship_prism.png","/textures/ShieldItem.png", "/textures/explosion0.png","/textures/bullet.png","/textures/blade.png","/textures/orb.png","/textures/heart.png", 
+        const char* texture[] = { "/textures/player.png", "/textures/bomber.png", "/textures/enemyship_blue.png", "/textures/stars2.png","/textures/enemyship_black.png",
+            "/textures/ImmunePlayer.png","/textures/ShieldItem.png", "/textures/explosion0.png","/textures/bullet.png","/textures/blade.png","/textures/orb.png","/textures/heart.png", 
             "/textures/paintBucket.png","/textures/shooter.png"};
         // Get number of declared textures
         int num_textures = sizeof(texture) / sizeof(char*);
@@ -359,22 +360,22 @@ namespace game {
         glm::vec3 dir = player->GetBearing();
         // Adjust motion increment and angle increment 
         // if translation or rotation is too slow
-        float speed = delta_time * 1000.0;
+        float speed = delta_time * 100.0;
         float motion_increment = 0.001 * speed;
-        float angle_increment = (glm::pi<float>() / 1800.0f) * speed;
+        float angle_increment = (glm::pi<float>() / 180.0f) * speed;
 
         glm::vec3 a = glm::vec3(0.0001f, 0.0001f, 0.0f);
 
 
         // Check for player input and make changes accordingly
         if (glfwGetKey(window_, GLFW_KEY_W) == GLFW_PRESS) {
-            a = glm::vec3(0.0005, 0.0005, 0.0f) * dir;
+            a = glm::vec3(0.0003, 0.0003, 0.0f) * dir;
 
             player->Accelerate(a);
 
         }
         if (glfwGetKey(window_, GLFW_KEY_S) == GLFW_PRESS) {
-            a = glm::vec3(-0.0005f, -0.0005f, 0.0f) * dir;
+            a = glm::vec3(-0.0003f, -0.0003f, 0.0f) * dir;
             player->Accelerate(a);
         }
         glm::vec3 up(0.0f, 0.0f, 1.0f);
@@ -384,13 +385,13 @@ namespace game {
         if (glfwGetKey(window_, GLFW_KEY_E) == GLFW_PRESS) {
             // Correctly move to the right by applying acceleration perpendicular to the current direction
 
-            a = right * 0.0005f;
+            a = right * 0.0003f;
             player->Accelerate(a);
         }
         if (glfwGetKey(window_, GLFW_KEY_Q) == GLFW_PRESS) {
             // Move to the left by applying acceleration in the opposite direction of 'right'
 
-            a = right * -0.0005f; // Adjust the magnitude as needed for the left movement
+            a = right * -0.0003f; // Adjust the magnitude as needed for the left movement
             player->Accelerate(a);
         }
 
@@ -420,7 +421,6 @@ namespace game {
                 player->startshoot();
             }
             
-
         }
 
     }
@@ -520,7 +520,7 @@ namespace game {
                 distanceVector.y = std::abs(playerPosition.y - shooterPosition.y);
 
 
-                if (distanceVector.x <= 5.0f && distanceVector.y <= 5.0f) {
+                if (distanceVector.x <= 5.0f && distanceVector.y <= 5.0f && shooter->BlindFinished()) {
                     shooter->SetTargetPosition(player->GetPosition());
                     shooter->setState(Shooter::State::Intercepting);
                     
@@ -551,7 +551,7 @@ namespace game {
 
 
                 // If the enemy is within 20.0f units of the player, switch its state to Intercepting
-                if (distanceVector.x <= 5.0f && distanceVector.y <= 5.0f) {
+                if (distanceVector.x <= 5.0f && distanceVector.y <= 5.0f && enemy->BlindFinished()) {
 
                     enemy->SetTargetPosition(player->GetPosition());
                     enemy->setState(EnemyGameObject::State::Intercepting);
@@ -685,6 +685,7 @@ namespace game {
 
         if (paintCollections == 5) {
             paintCollections = 0;
+            findClosestEnemy(game_objects_[0])->BlindStart();
 
         }
 
@@ -801,7 +802,17 @@ namespace game {
             std::mt19937 eng(rd()); // Seed the generator
             std::uniform_real_distribution<> distr(-30.0 + playerpos.x, 30.0 + playerpos.x); // Define the range
             
-            game_objects_.insert(game_objects_.end() - 10, new EnemyGameObject(glm::vec3(distr(eng), distr(eng), 0.0f), sprite_, &sprite_shader_, tex_[1]));
+            int type = distr(eng);
+
+            if (type >= -30.0 && type < -10.0) {
+                game_objects_.insert(game_objects_.end() - 10, new EnemyGameObject(glm::vec3(distr(eng), distr(eng), 0.0f), sprite_, &sprite_shader_, tex_[1]));
+            }
+            else if (type >= -10.0 && type < 10.0) {
+                game_objects_.insert(game_objects_.end() - 10, new Shooter(glm::vec3(distr(eng), distr(eng), 0.0f), sprite_, &sprite_shader_, tex_[13]));
+            }
+            else if (type >= 10.0 && type <= 30.0) {
+
+            }
 
             enemycount--;
         }
@@ -828,6 +839,29 @@ namespace game {
 
             itemcount--;
         }
+    }
+
+
+
+    EnemyGameObject* Game::findClosestEnemy(GameObject* player) {
+        EnemyGameObject* closestEnemy = nullptr;
+        float shortestDistance = std::numeric_limits<float>::max();
+
+        for (GameObject* obj : game_objects_) {
+            EnemyGameObject* enemy = dynamic_cast<EnemyGameObject*>(obj);
+
+            // To make sure the object is an enemy type
+            if (enemy != nullptr) {
+                float distance = glm::distance(player->GetPosition(), enemy->GetPosition());
+
+                    if (distance < shortestDistance) {
+                        closestEnemy = enemy;
+                        shortestDistance = distance;
+                    }
+            }
+        }
+
+        return closestEnemy;
     }
 
    
