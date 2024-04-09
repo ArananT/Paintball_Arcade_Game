@@ -40,6 +40,9 @@ namespace game {
         // Setter for the target position (e.g., player's position)
         void SetTargetPosition(const glm::vec3& targetPos);
 
+        void BlindStart();
+        bool BlindFinished();
+
     private:
         Timer* interceptTimer; // Timer to manage modifications to the velocity vector
         glm::vec3 velocity; // Current velocity of the enemy
@@ -50,6 +53,9 @@ namespace game {
         float patrolRadius; // Radius of the patrol circle
         glm::vec3 patrolCenter; // Center of the patrol circle
         State currentState; // Current state of the enemy
+
+        bool blind; // If the enemy is hit by a paint bucket
+        Timer* blindTimer; // Timer to manage the length of enemy blindness
     };
     class Shooter : public EnemyGameObject {
     public:

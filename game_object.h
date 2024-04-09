@@ -139,6 +139,7 @@ namespace game {
                 return creation_time_;
             }
 
+            // Finds which tile the player is in
             bool inTile(GameObject* tile);
 
         protected:

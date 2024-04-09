@@ -10,6 +10,7 @@
 #include "game_object.h"
 #include "timer.h"
 #include "Bullet.h"
+#include "EnemyGameObject.h"
 namespace game {
 
     // A class for holding the main game objects
@@ -95,6 +96,9 @@ namespace game {
 
         // Takes care of background scrolling
         void HandleBackground(GameObject* player, GameObject* tile);
+
+        // Finds the closest enemy to the player
+        EnemyGameObject* findClosestEnemy(GameObject* player);
 
         // Render the game world
         void Render(void);

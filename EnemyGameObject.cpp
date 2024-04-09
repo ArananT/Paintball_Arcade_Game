@@ -15,6 +15,8 @@ namespace game {
         // Assuming State is defined and Patrolling is a value in the State enum
         currentState = State::Patrolling;
         interceptTimer = new Timer();
+        blindTimer = new Timer();
+        blind = false;
         interceptStart();
 
     }
@@ -111,6 +113,23 @@ namespace game {
             return interceptTimer->Finished();
         }
         return false; // Assume not started if timer is null
+    }
+
+    void EnemyGameObject::BlindStart() {
+        blind = true;
+        blindTimer->Start(5.0);
+    }
+
+    bool EnemyGameObject::BlindFinished() {
+        if (blindTimer != nullptr) {
+            if (blindTimer->Finished()) {
+                blind = false;
+            }
+            else {
+                return true;
+            }
+        }
+        return false;
     }
     
     //SHOOTER_CLASS
