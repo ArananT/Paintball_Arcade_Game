@@ -145,6 +145,7 @@ namespace game {
         shootTimer = new Timer();
         interceptStart();
         shootStart();
+        canshoot = true;
 
     }
     Shooter::~Shooter() {
@@ -248,6 +249,15 @@ namespace game {
 
     void Shooter::SetTargetPosition(const glm::vec3& targetPos) {
         targetPosition = targetPos;
+    }
+
+
+    void Shooter::setShoot(bool shooter) {
+        canshoot = shooter;
+    }
+
+    bool Shooter::canShoot() {
+        return canshoot;
     }
 
     //void StaticEnemy::update() {

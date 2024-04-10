@@ -524,7 +524,7 @@ namespace game {
                     shooter->SetTargetPosition(player->GetPosition());
                     shooter->setState(Shooter::State::Intercepting);
                     
-                    if (shooter->shootDone()) {
+                    if (shooter->shootDone() && shooter->canShoot()) {
                         enemy_bullets.push_back(new Bullet(shooter->GetPosition(), sprite_, &sprite_shader_, tex_[8]));
                         enemy_bullets[enemybulletcount]->SetScale(glm::vec2(0.5, 0.5));
                         enemy_bullets[enemybulletcount]->SetRotation(shooter->GetRotation());
@@ -565,13 +565,20 @@ namespace game {
                 GameObject* current_game_object = game_objects_[i];
                 if (current_game_object->boomTime() == true) {
                     enemycount++;
+                    
                     current_game_object->SetTemporary(true);
+
+                    Shooter* shooter = dynamic_cast<Shooter*>(current_game_object);
+                    if (shooter != nullptr) {
+                        shooter->setShoot(false);
+                    }
                 }
                 if (current_game_object->invincibleDone()) {
                     current_game_object->onCollide();
 
                     current_game_object->SetTex(tex_[0]);
                 }
+                
                 else {
                     // Update the current game object
                     current_game_object->Update(delta_time);

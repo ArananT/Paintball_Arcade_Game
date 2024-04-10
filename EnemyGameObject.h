@@ -80,7 +80,10 @@ namespace game {
 
         void SetTargetPosition(const glm::vec3& targetPos);
 
+        void setShoot(bool shoot);
+
         bool canShoot();
+
 
     private:
         Timer* interceptTimer; // Timer to manage modifications to the velocity vector
