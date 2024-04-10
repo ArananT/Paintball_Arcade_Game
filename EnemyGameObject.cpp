@@ -131,10 +131,10 @@ namespace game {
         }
         return false;
     }
-    
+
     //SHOOTER_CLASS
 
- 
+
 
     Shooter::Shooter(const glm::vec3& position, Geometry* geom, Shader* shader, GLuint texture)
         : EnemyGameObject(position, geom, shader, texture), patrolAngle(0.0f), patrolRadius(0.0f), patrolCenter(glm::vec3(0.0f + position.x, 0.0f + position.y, 0.0f)) {
@@ -153,7 +153,7 @@ namespace game {
         delete shootTimer;
     }
 
-    
+
 
 
     void Shooter::Update(double delta_time) {
@@ -172,7 +172,7 @@ namespace game {
 
                 std::cout << "TIMERDONE" << std::endl;
 
-                
+
                 glm::vec3 direction = glm::normalize(targetPosition - position_);
                 // Update velocity direction without changing its magnitude
                 float speed = 0.2f;
@@ -202,7 +202,7 @@ namespace game {
             // Update the position of the enemy game object
             SetPosition(glm::vec3(newX, newY, position_.z));
         }
-        
+
     }
 
 
@@ -222,7 +222,7 @@ namespace game {
 
             return interceptTimer->Finished();
         }
-        
+
         return false; // Assume not started if timer is null
     }
 
@@ -241,7 +241,7 @@ namespace game {
             else {
                 return false;
             }
-          
+
         }
 
         return false; // Assume not started if timer is null
@@ -260,12 +260,132 @@ namespace game {
         return canshoot;
     }
 
-    //void StaticEnemy::update() {
-    //   
-    //}
 
 
-    //void InterceptingEnemy::update() {
-    //}
+    //SPEEDER_CLASS
+
+    Speeder::Speeder(const glm::vec3& position, Geometry* geom, Shader* shader, GLuint texture)
+        : EnemyGameObject(position, geom, shader, texture), patrolAngle(0.0f), patrolRadius(0.0f), patrolCenter(glm::vec3(0.0f + position.x, 0.0f + position.y, 0.0f)) {
+        scale_ = glm::vec2(1.0f, 1.0f);
+        // Assuming State is defined and Patrolling is a value in the State enum
+        currentState = State::Patrolling;
+        interceptTimer = new Timer();
+        shootTimer = new Timer();
+        interceptStart();
+        shootStart();
+        canshoot = true;
+
+    }
+    Speeder::~Speeder() {
+        delete interceptTimer;
+        delete shootTimer;
+    }
+
+
+
+
+    void Speeder::Update(double delta_time) {
+
+        GameObject::Update(delta_time);
+
+        if (currentState == State::Intercepting) {
+            // Calculate direction towards the player
+            glm::vec3 direction = glm::normalize(targetPosition - position_);
+
+            float angleDegrees = std::atan2(direction.y, direction.x);
+
+
+            SetRotation(angleDegrees);
+            if (interceptDone()) {
+
+                std::cout << "TIMERDONE_SPEEDER" << std::endl;
+
+
+                glm::vec3 direction = glm::normalize(targetPosition - position_);
+                // Update velocity direction without changing its magnitude
+                float speed = 0.02f;
+                velocity = direction * speed;
+                SetVelocity(velocity);
+                std::cout << "TargetPosition_X_SPEEDER" << velocity.x << std::endl;
+                std::cout << "TargetPosition_Y_SPEEDER" << velocity.y << std::endl;
+                interceptStart();
+            }
+            position_ += velocity * static_cast<float>(delta_time);
+        }
+        // Assuming currentState is a member variable that is already set to Patrolling
+        else if (currentState == State::Patrolling) {
+            // Increment the angle to move along the circle
+            patrolAngle += 0.1 * delta_time; // Increase by some value to change the speed
+
+            // Use the defined value of 2 * PI
+            const float twoPi = 2.0f * static_cast<float>(M_PI); // Or directly use 6.28318530718f if M_PI is not available
+            if (patrolAngle > twoPi) {
+                patrolAngle -= twoPi;
+            }
+
+            // Parametric equation for a circle
+            float newX = patrolCenter.x + patrolRadius * cos(patrolAngle);
+            float newY = patrolCenter.y + patrolRadius * sin(patrolAngle);
+
+            // Update the position of the enemy game object
+            SetPosition(glm::vec3(newX, newY, position_.z));
+        }
+
+    }
+
+
+
+    void Speeder::setState(State newstate) {
+        currentState = newstate;
+    }
+
+    void Speeder::interceptStart() {
+
+        if (interceptTimer != nullptr) { // Always check if the pointer is not null
+            interceptTimer->Start(1.0);
+        }
+    }
+    bool Speeder::interceptDone() {
+        if (interceptTimer != nullptr) { // Always check if the pointer is not null
+
+            return interceptTimer->Finished();
+        }
+
+        return false; // Assume not started if timer is null
+    }
+
+    void Speeder::shootStart() {
+
+        if (shootTimer != nullptr) { // Always check if the pointer is not null
+            shootTimer->Start(2.0);
+        }
+    }
+    bool Speeder::shootDone() {
+        if (shootTimer != nullptr) { // Always check if the pointer is not null
+            if (shootTimer->Finished()) {
+                shootTimer->Start(2.0);
+                return true;
+            }
+            else {
+                return false;
+            }
+
+        }
+
+        return false; // Assume not started if timer is null
+    }
+
+    void Speeder::SetTargetPosition(const glm::vec3& targetPos) {
+        targetPosition = targetPos;
+    }
+
+
+    void Speeder::setShoot(bool Speeder) {
+        canshoot = Speeder;
+    }
+
+    bool Speeder::canShoot() {
+        return canshoot;
+    }
 
 } // namespace game

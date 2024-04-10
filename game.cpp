@@ -154,7 +154,7 @@ namespace game {
         game_objects_.push_back(new EnemyGameObject(glm::vec3(distr(eng), distr(eng), 0.0f), sprite_, &sprite_shader_, tex_[1]));
         game_objects_[4]->SetRotation(pi_over_two);
 
-        game_objects_.push_back(new Shooter(glm::vec3(5.0f, 0.0f , 0.0f), sprite_, &sprite_shader_, tex_[13]));
+        game_objects_.push_back(new Speeder(glm::vec3(5.0f, 0.0f , 0.0f), sprite_, &sprite_shader_, tex_[4]));
         game_objects_[5]->SetRotation(pi_over_two);
         
 
@@ -470,6 +470,14 @@ namespace game {
                 if (target != nullptr) {
                     float collisionTime = bullet->FindCollisionTime(rayOrigin, rayDirection, bullet->GetVelocity(), target->GetPosition(), 0.45f, delta_time);
                     if (collisionTime >= 0.0) {
+                        Shooter* shooter = dynamic_cast<Shooter*>(target);
+                        if (shooter != nullptr) {
+                            shooter->setShoot(false);
+                        }
+                        Speeder* speeder = dynamic_cast<Speeder*>(target);
+                        if (speeder != nullptr) {
+                            speeder->setShoot(false);
+                        }
                         target->SetTex(tex_[7]);
                         target->toggleCollide();
                         target->boomStart();
@@ -508,6 +516,8 @@ namespace game {
 
             Shooter* shooter = dynamic_cast<Shooter*>(obj);
 
+            Speeder* speeder= dynamic_cast<Speeder*>(obj);
+
 
             if (shooter != nullptr) {
 
@@ -538,7 +548,42 @@ namespace game {
                     shooter->setState(Shooter::State::Patrolling);
 
                 }
-            }       
+            }
+
+            //
+
+
+            if (speeder != nullptr) {
+
+
+                glm::vec3 playerPosition = player->GetPosition();
+                glm::vec3 shooterPosition = speeder->GetPosition();
+                glm::vec3 distanceVector;
+
+                distanceVector.x = std::abs(playerPosition.x - shooterPosition.x);
+                distanceVector.y = std::abs(playerPosition.y - shooterPosition.y);
+
+
+                if (distanceVector.x <= 5.0f && distanceVector.y <= 5.0f && speeder->BlindFinished()) {
+                    speeder->SetTargetPosition(player->GetPosition());
+                    speeder->setState(Speeder::State::Intercepting);
+
+                    if (speeder->shootDone() && speeder->canShoot()) {
+                        enemy_bullets.push_back(new Bullet(speeder->GetPosition(), sprite_, &sprite_shader_, tex_[8]));
+                        enemy_bullets[enemybulletcount]->SetScale(glm::vec2(0.5, 0.5));
+                        enemy_bullets[enemybulletcount]->SetRotation(speeder->GetRotation());
+                        enemy_bullets[enemybulletcount]->SetVelocity(speeder->GetBearing() / 3.0f);
+                        enemybulletcount++;
+
+                    }
+
+                }
+                else {
+                    speeder->setState(Speeder::State::Patrolling);
+
+                }
+            }
+
             if (enemy != nullptr) {
 
                 // Calculate the distance between the player and this enemy
@@ -568,10 +613,7 @@ namespace game {
                     
                     current_game_object->SetTemporary(true);
 
-                    Shooter* shooter = dynamic_cast<Shooter*>(current_game_object);
-                    if (shooter != nullptr) {
-                        shooter->setShoot(false);
-                    }
+                    
                 }
                 if (current_game_object->invincibleDone()) {
                     current_game_object->onCollide();
@@ -818,7 +860,7 @@ namespace game {
                 game_objects_.insert(game_objects_.end() - 10, new Shooter(glm::vec3(distr(eng), distr(eng), 0.0f), sprite_, &sprite_shader_, tex_[13]));
             }
             else if (type >= 10.0 && type <= 30.0) {
-
+                game_objects_.insert(game_objects_.end() - 10, new Speeder(glm::vec3(distr(eng), distr(eng), 0.0f), sprite_, &sprite_shader_, tex_[4]));
             }
 
             enemycount--;
