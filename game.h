@@ -105,6 +105,9 @@ namespace game {
 
         void BladeTransform(const glm::vec3&);
 
+        // Information HUD for player
+        void HUD(int hp);
+
     }; // class Game
 
 } // namespace game

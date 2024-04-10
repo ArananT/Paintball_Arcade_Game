@@ -34,6 +34,7 @@ namespace game {
     const unsigned int window_height_g = 600;
     const glm::vec3 viewport_background_color_g(0.0, 0.0, 1.0);
     std::vector<GameObject*> background_objects_;
+    GameObject* HUDObj;
     std::vector<Bullet*> bullet_objects_;
     std::vector<Bullet*> enemy_bullets;
     int bulletcount = 0;
@@ -245,6 +246,9 @@ namespace game {
         background_objects_.push_back(background9);
         background9->toggleCollide();
 
+        // Setup HUD
+        GameObject* newHud = new GameObject(glm::vec3(-2.0f, 2.0f, 0.0f), sprite_, &sprite_shader_, tex_[17]);
+        HUDObj = newHud;
 
         // Setup particle system
         GameObject* particles = new ParticleSystem(glm::vec3(-0.5f, 0.0f, 0.0f), particles_, &particle_shader_, tex_[10], game_objects_[0]);
@@ -293,9 +297,9 @@ namespace game {
     {
         // Load all textures that we will need
         // Declare all the textures here
-        const char* texture[] = { "/textures/player.png", "/textures/bomber.png", "/textures/enemyship_blue.png", "/textures/stars2.png","/textures/enemyship_black.png",
+        const char* texture[] = { "/textures/player.png", "/textures/bomber.png", "/textures/enemyship_blue.png", "/textures/stars2.png","/textures/speeder.png",
             "/textures/ImmunePlayer.png","/textures/ShieldItem.png", "/textures/explosion0.png","/textures/bullet.png","/textures/blade.png","/textures/orb.png","/textures/heart.png", 
-            "/textures/paintBucket.png","/textures/shooter.png"};
+            "/textures/paintBucket.png","/textures/shooter.png", "/textures/HP0.png", "/textures/HP1.png", "/textures/HP2.png", "/textures/HP3.png"};
         // Get number of declared textures
         int num_textures = sizeof(texture) / sizeof(char*);
         // Allocate a buffer for all texture references
@@ -765,8 +769,9 @@ namespace game {
             }
         }
 
-        if (hitOrHeal == HEAL) {
+        if (hitOrHeal == HEAL && playerCollisions > 0) {
             playerCollisions--;
+            HUD(3 - playerCollisions);
         }
 
         object2->SetTex(tex_[7]);
@@ -841,6 +846,8 @@ namespace game {
         for (int i = 0; i < game_objects_.size(); i++) {
             game_objects_[i]->Render(view_matrix, current_time_);
         }
+
+        HUDObj->Render(view_matrix, current_time_);
         
         
     }
@@ -911,6 +918,22 @@ namespace game {
         }
 
         return closestEnemy;
+    }
+
+    void Game::HUD(int hp) {
+
+        if (hp == 0) {
+            HUDObj->SetTex(tex_[14]);
+        }
+        if (hp == 1) {
+            HUDObj->SetTex(tex_[15]);
+        }
+        if (hp == 2) {
+            HUDObj->SetTex(tex_[16]);
+        }
+        if (hp == 3) {
+            HUDObj->SetTex(tex_[17]);
+        }
     }
 
    
