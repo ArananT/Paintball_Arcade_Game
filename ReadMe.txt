@@ -6,12 +6,12 @@ on Brightspace***
 
 What is the game: Arcade Style Space Paintball minigame where you fight enemies trying to takeover the galaxy
 
-How To Play: To play this game you use your W, A, S and D keys to move around as well as space to fire paintballs, you can also collect different items that give you special power ups
+How To Play: To play this game you Move around [W:forward, S:Backward, Q:Left, E:Right, A:Rotate Counter Clockwise, D: Rotate Clockwise] and Shoot [space] enemies. You are also able to collect items and powerups to aid you throughout the game
 
 Items: Once you have collected 5 of one item a special power up will be added for a few seconds
 	Heart: Player heals one hit point (up to a maximum of 3)
 	Shield: Player becomes invincible for 5.0 seconds
-	Paint Bucket: Paint bucket covers an enemy's field of view for 5.0 seconds causing it to be 	unable 	to fire or target the player
+	Paint Bucket: Paint bucket covers all enemies' field of view for 5.0 seconds causing it to be 	unable 	to fire or target the player
 
 Enemies: There are 3 different enemy types in the game
 	Shooters: Spaceships that patroll around space and stop and target the player when in range 	and start shooting at them
@@ -29,12 +29,3 @@ Particle System: Game features 2 different particles including a jet fuel stream
 Collision detection: Used to determine whether the player has intersected with an enemy, bullet or item and calling the appropriate functions to deal with it
 
 UI: Attempted but not successfully implemented the goal was to have a hit point HUD at the top of the screen, some of the code for the attempt can be found in game.cpp using a HUDObj GameObject and a HUD() function
-
-
-
-
-
-
-
-
-

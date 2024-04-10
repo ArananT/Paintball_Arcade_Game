@@ -40,7 +40,7 @@ namespace game {
     int bulletcount = 0;
     int enemybulletcount = 0;
     GameObject* blade;
-    int enemycount = 10;
+    int enemycount = 20;
     int itemcount = 10;
 
     
@@ -155,37 +155,17 @@ namespace game {
         game_objects_.push_back(new EnemyGameObject(glm::vec3(distr(eng), distr(eng), 0.0f), sprite_, &sprite_shader_, tex_[1]));
         game_objects_[4]->SetRotation(pi_over_two);
 
-        game_objects_.push_back(new Speeder(glm::vec3(5.0f, 0.0f , 0.0f), sprite_, &sprite_shader_, tex_[4]));
-        game_objects_[5]->SetRotation(pi_over_two);
         
-
-
-        //add collectable game objects 
-        game_objects_.push_back(new CollectableGameObject(glm::vec3(-3.0f, 3.0f, 0.0f), sprite_, &sprite_shader_, tex_[6]));
-        game_objects_[6]->SetRotation(pi_over_two);
-
-        game_objects_.push_back(new CollectableGameObject(glm::vec3(-3.0f, 2.0f, 0.0f), sprite_, &sprite_shader_, tex_[6]));
-        game_objects_[7]->SetRotation(pi_over_two);
-
-        game_objects_.push_back(new CollectableGameObject(glm::vec3(-3.0f, 1.0f, 0.0f), sprite_, &sprite_shader_, tex_[6]));
-        game_objects_[8]->SetRotation(pi_over_two);
-
-        game_objects_.push_back(new CollectableGameObject(glm::vec3(-3.0f, 0.0f, 0.0f), sprite_, &sprite_shader_, tex_[6]));
-        game_objects_[9]->SetRotation(pi_over_two);
-
-        game_objects_.push_back(new CollectableGameObject(glm::vec3(-3.0f, -1.0f, 0.0f), sprite_, &sprite_shader_, tex_[6]));
-        game_objects_[10]->SetRotation(pi_over_two);
-
 
         //add enemy game objects
         game_objects_.push_back(new EnemyGameObject(glm::vec3(distr(eng), distr(eng), 0.0f), sprite_, &sprite_shader_, tex_[1]));
-        game_objects_[11]->SetRotation(pi_over_two);
+        game_objects_[5]->SetRotation(pi_over_two);
 
         game_objects_.push_back(new EnemyGameObject(glm::vec3(distr(eng), distr(eng), 0.0f), sprite_, &sprite_shader_, tex_[1]));
-        game_objects_[12]->SetRotation(pi_over_two);
+        game_objects_[6]->SetRotation(pi_over_two);
 
         game_objects_.push_back(new EnemyGameObject(glm::vec3(distr(eng), distr(eng), 0.0f), sprite_, &sprite_shader_, tex_[1]));
-        game_objects_[13]->SetRotation(pi_over_two);
+        game_objects_[7]->SetRotation(pi_over_two);
 
         game_objects_.insert(game_objects_.begin()+1,new GameObject(glm::vec3(19.0f,1.0f,0.0f), sprite_, &sprite_shader_, tex_[9]));
         game_objects_[1]->SetRotation(pi_over_two);
